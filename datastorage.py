@@ -1,5 +1,7 @@
 from enum import Enum
-import os
+import datetime, time
+import struct
+import os 
 
 ''' 
     protocol identifiers
@@ -128,7 +130,7 @@ class CHInfo:
         ch_info = bytearray(self.sp.to_bytes(4, byteorder = 'big')) \
                 + bytearray(self.nof.to_bytes(4, byteorder = 'big')) \
                 + bytearray(self.du.to_bytes(4, byteorder = 'big')) \
-                + bytearray(self.ts.to_bytes(4, byteorder = 'big')) 
+                + bytearray(struct.pack("f", self.ts)) #  (self.ts.to_bytes(4, byteorder = 'big')) 
         
         return ch_info
     
@@ -140,9 +142,8 @@ class CHInfo:
         self.sp = int.from_bytes(ch_info[:4], 'big')
         self.nof = int.from_bytes(ch_info[4:8], 'big')
         self.du = int.from_bytes(ch_info[8:12], 'big')
-        self.ts = int.from_bytes(ch_info[12:], 'big')
-         
-    
+        self.ts = struct.unpack("f", ch_info[12:16])[0]   # int.from_bytes(ch_info[12:], 'big')
+        
 #
 # Data Block Header 
 #   64 bytes 
@@ -320,12 +321,20 @@ class DataStorage:
                 f.seek(0,0)
                 dh_bytes = self.dsheader.to_bytes()
                 f.write(dh_bytes)
-
+    
+    def settimestamp(self, ts=0): 
+        if ts==0:
+            now = datetime.datetime.now()
+            ts =  time.mktime(now.timetuple()) 
+         
+        for i in range(self.dsheader.noc):
+            self.dbh.chns[i].ts = ts #  struct.pack("f", ts)
+     
     ''' Uplaod raw data to the storage '''    
     def upload(self, rawdata: RawData = None, size=0):
-        
+             
         lines = rawdata.getRawData() 
-        chns = [*range(self.profile['noc'])]
+        chns = [*range(self.dsheader.noc)] 
         count = 0
         for line in lines:
             x = line.strip('\n').split(',') 
@@ -343,6 +352,7 @@ class DataStorage:
             if chn in chns:
                 self.db[chn].append(info+data)
                 self.dbh.chns[chn].nof += 1
+                self.dbh.chns[chn].du += rs
                 # TODO, update chn.du, ds 
                 
             if size > 0:
