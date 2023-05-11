@@ -67,9 +67,9 @@ class DSHeader:
             self.noc: int = 2  # number of channcels, 
             self.proto: int = 0x0000 # protocols of channel, byte-0 for chn0, and byte-1 for chn1 
             self.nob: int = 0  # number of data blocks
-            self.lof: int = 8  # length of frame in bytes, e.g 8 (bytes)
+            self.lof: int = 12  # length of per frame in bytes, e.g 12 (bytes) incl. fid, time 
             self.ldh: int = 64 # length of data block header, e.g 64 (bytes)
-            self.dap: int = 0 # position of data (the first of data block)
+            self.dap: int = self.loh  # position of data (the first of data block)
         else:
             self.init_from_bytes(data=data)
 
@@ -119,7 +119,7 @@ class CHInfo:
             self.sp: int = 64 # offset of channel 0 data, = data block header length
             self.nof: int = 0 # number of frames
             self.du : int = 0 # duration in 0.1 ms (depending to the protocol), max duration < 3 days
-            self.ts : int = 0 # timestamp of satrt  
+            self.ts : int = 0 # timestamp of start  
         else:
             self.init_from_bytes(data=data)
 
@@ -154,8 +154,8 @@ class DBHeader:
         self.noc  = noc  # defined in DS Header noc
         
         self.cp: int  = 0 # current pointer, position of this block
-        self.fp: int  = 0 # backward pointer, position of the previous block 
-        self.bp: int  = 0 # forward pointer, postition of the next block 
+        self.pp: int  = 0 # backward pointer, position of the previous block 
+        self.np: int  = 0 # forward pointer, postition of the next block 
         self.info: int = 0 
         self.chns: list = []
          
@@ -169,8 +169,8 @@ class DBHeader:
     def to_bytes(self):
        
         db_header = bytearray(self.cp.to_bytes(8, byteorder = 'big')) \
-                  + bytearray(self.fp.to_bytes(8, byteorder = 'big')) \
-                  + bytearray(self.bp.to_bytes(8, byteorder = 'big')) \
+                  + bytearray(self.pp.to_bytes(8, byteorder = 'big')) \
+                  + bytearray(self.np.to_bytes(8, byteorder = 'big')) \
                   + bytearray(self.info.to_bytes(2, byteorder = 'big')) \
         
         ch_info = bytearray()
@@ -189,8 +189,8 @@ class DBHeader:
         db_header = data
         
         self.cp = int.from_bytes(db_header[0:8], 'big')
-        self.fp = int.from_bytes(db_header[8:16], 'big')
-        self.bp = int.from_bytes(db_header[16:24], 'big')
+        self.pp = int.from_bytes(db_header[8:16], 'big')
+        self.np = int.from_bytes(db_header[16:24], 'big')
         self.info = int.from_bytes(db_header[24:26], 'big')
         
         chinfo_startbyte = self.ldh - (2*CHInfo.chinfo_size)  # skip reserverd bytes,  
@@ -208,7 +208,7 @@ DSM_UNKNONW = 0
 DSM_FILE = 1
 DSM_DATABASE = 2
 
-DEFAULT_PROFILE = { 'ver': DS_VERSION, 'loh': 128, 'pid': 0, 'noc': 2, 'lof':8, 'lodh':64 }
+DEFAULT_PROFILE = { 'ver': DS_VERSION, 'loh': 128, 'pid': 0, 'noc': 2, 'lof':12, 'lodh':64 }
 
 class DataStorage:
     def __init__(self, filename=None, dblink=None):
@@ -291,23 +291,35 @@ class DataStorage:
                 
                 bh = {}  # data block header 
                 
-                db_pos = self.header['datap'] # TODO: recalculate datablock position in __init__()
-                ds_pos = db_pos + self.header['lodh']   
+                db_pos = self.dsheader.dap # TODO: recalculate datablock position in __init__()
+                ds_pos = db_pos + self.dsheader.ldh   
                 
                 # write data 
-                f.seek(ds_pos, 0)
-                for chn in range(self.profile['noc']):
-                    cn = f'chn{chn}' 
-                    bh[cn] = [f.tell(), len(self.db[chn])] 
+                f.seek(ds_pos, 0) 
+                for chn in range(self.dsheader.noc):
+                    #cn = f'chn{chn}' 
+                    #bh[cn] = [f.tell(), len(self.db[chn])]
+                    self.dbh.chns[chn].sp = ds_pos
                     for d in self.db[chn]:
                         f.write(d)
+                    ds_pos = f.tell() 
+                    
+                # update data block header
+                self.dbh.cp = db_pos
+                # self.dbh.pp = 
+                # self.dbh.np = 0 
                 
                 # write block header
-                f.seek(db_pos, 0) 
-                dp_bytes = bytearray(json.dumps(bh).encode('utf-8'))
+                f.seek(db_pos,0)  
+                dp_bytes = self.dbh.to_bytes()
+                print(dp_bytes)
                 f.write(dp_bytes)
                 
-                # TODO: write storage header 
+                # write storage header 
+                self.dsheader.nob += 1
+                f.seek(0,0)
+                dh_bytes = self.dsheader.to_bytes()
+                f.write(dh_bytes)
 
     ''' Uplaod raw data to the storage '''    
     def upload(self, rawdata: RawData = None, size=0):
