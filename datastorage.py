@@ -332,7 +332,9 @@ class DataStorage:
                 
                 bh = {}  # data block header 
                 
-                db_pos = self.dsheader.dap # TODO: recalculate datablock position in __init__()
+                print("dsheadr.dap = {}".format(self.dsheader.dap))
+                print("dsheadr.cdap = {}".format(self.dsheader.cdap))
+                db_pos = self.dsheader.cdap # recalculate datablock position in __init__()
                 ds_pos = db_pos + self.dsheader.ldh   
                 
                 # write data 
