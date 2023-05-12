@@ -72,6 +72,8 @@ class DSHeader:
             self.lof: int = 12  # length of per frame in bytes, e.g 12 (bytes) incl. fid, time 
             self.ldh: int = 64 # length of data block header, e.g 64 (bytes)
             self.dap: int = self.loh  # position of data (the first of data block)
+            self.cdap: int = self.loh  # position of new data block (to write new data here) 
+            
         else:
             self.init_from_bytes(data=data)
 
@@ -85,7 +87,9 @@ class DSHeader:
                   + bytearray(self.nob.to_bytes(2, byteorder = 'big')) \
                   + bytearray(self.lof.to_bytes(2, byteorder = 'big')) \
                   + bytearray(self.ldh.to_bytes(2, byteorder = 'big')) \
-                  + bytearray(self.dap.to_bytes(2, byteorder = 'big'))
+                  + bytearray(self.dap.to_bytes(2, byteorder = 'big')) \
+                  + bytearray(self.cdap.to_bytes(2, byteorder = 'big'))
+                 
                  
         # generate 128-byte header, defined in self.loh
         ds_header += bytearray(self.loh-len(ds_header))     
@@ -108,6 +112,7 @@ class DSHeader:
         self.lof = int.from_bytes(ds_header[14:16], 'big') # length of frame in bytes, e.g 8 (bytes)
         self.ldh = int.from_bytes(ds_header[16:18], 'big') # length of data block header, e.g 64 (bytes)
         self.dap = int.from_bytes(ds_header[18:20], 'big') # position of data (the first of data block)
+        self.cdap = int.from_bytes(ds_header[20:22], 'big') 
 
 
 #
@@ -279,7 +284,8 @@ class DataStorage:
             dbl += self.dsheader.ldh
             c_dap +=  dbl
             self.cdap = c_dap
-                 
+            self.dsheader.cdap = c_dap
+    
     
     def setprofile(self, profile={}):
         
