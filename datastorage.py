@@ -115,8 +115,8 @@ class DSHeader:
 #   16 bytes 
 # 
 class CHInfo:
+    chinfo_size = 16 # class variable to declare the size of CHInfo 
     def __init__(self, data=None):
-        chinfo_size = 16 # class variable to declare the size of CHInfo 
         if data is None:
             self.sp: int = 64 # offset of channel 0 data, = data block header length
             self.nof: int = 0 # number of frames
@@ -136,6 +136,8 @@ class CHInfo:
     
     def init_from_bytes(self, data: bytearray = bytearray()):
         if (len(data) < 16):
+            #print("len = {}".format(len(data)))
+            #print(data)
             return 
         
         ch_info = data
@@ -184,7 +186,7 @@ class DBHeader:
         return db_header
          
     def init_from_bytes(self, data: bytearray = bytearray()):
-        if (len(data) < self.lodh):
+        if (len(data) < self.ldh):
             return 
       
         db_header = data
@@ -196,12 +198,11 @@ class DBHeader:
         
         chinfo_startbyte = self.ldh - (2*CHInfo.chinfo_size)  # skip reserverd bytes,  
         
-        for i in range(self.nof):
+        for i in range(self.noc):
             chinfo_startbyte += (i*CHInfo.chinfo_size)
-            ch_info = (db_header[chinfo_startbyte: chinfo_startbyte+CHInfo.chinfo_size], 'big')  # CHInfo 16-byte
+            ch_info = db_header[chinfo_startbyte: chinfo_startbyte+CHInfo.chinfo_size] # CHInfo 16-byte
             self.chns.append(CHInfo(data=ch_info))
-        
-        
+         
     
 DS_VERSION = 0x0001  # v0.1 
 
@@ -218,8 +219,7 @@ class DataStorage:
         self.profile = DEFAULT_PROFILE
         self.profilelocked = False
         self.dsheader =None  # data storage header
-        # self.dbt = []  # data block table   
-        
+         
         self.dbh = None  # current active data block
         self.db = [] 
         for i in range(self.profile['noc']):
@@ -228,12 +228,15 @@ class DataStorage:
         #self._time = 0 
         #self.count = 0 
         
+        self.cdap = 0 
+        
         if filename is not None:
             ## file mode
             self.mode =  DSM_FILE
             self.filename = filename 
             if os.path.isfile(self.filename) == True:
                 self.isAvailable = True
+                self.__init_from_file()
                 # TODO: - open the storage file
                 #       - load profile
                 #       - load data (default volume)
@@ -246,6 +249,37 @@ class DataStorage:
             #       - load data (default volume) 
         else:
             self.mode =  DSM_UNKNONW
+    
+    
+    def __init_from_file(self):
+        with open(self.filename, 'rb') as f:
+            dsheader = f.read(128)  # use default size of dsheader
+            self.dsheader = DSHeader(data=dsheader)
+            # calculate active dbp
+            c_dap = self.dsheader.dap
+            for i in range(self.dsheader.nob):
+                f.seek(c_dap,0)
+                dbhb = f.read(self.dsheader.ldh) # read block header
+                dbh = DBHeader(data=dbhb)
+                if dbh.np > 0:
+                    c_dap = dbh.np
+                    continue
+                else:
+                    break
+                
+            dbl = 0 
+            print(self.dsheader.nob)
+            print(vars(dbh))
+            print(vars(dbh.chns[0]))
+            print(vars(dbh.chns[1]))
+            
+            for chn in range(self.dsheader.noc):
+                dbl += (dbh.chns[chn].nof * self.dsheader.lof)
+             
+            dbl += self.dsheader.ldh
+            c_dap +=  dbl
+            self.cdap = c_dap
+                 
     
     def setprofile(self, profile={}):
         
@@ -265,6 +299,7 @@ class DataStorage:
             self.profilelocked = True
             self.__generate_dsheader()
             self.__generate_dbheader()
+            self.cdap = self.dsheader.loh
      
     def __generate_dsheader(self):
         
@@ -287,8 +322,7 @@ class DataStorage:
     def flush(self, zipped=False):
         
         if self.mode == DSM_FILE: 
-            fn = f'{self.filename}.bin'
-            with open(fn,"wb") as f: 
+            with open(self.filename,"wb") as f: 
                 
                 bh = {}  # data block header 
                 
@@ -313,7 +347,7 @@ class DataStorage:
                 # write block header
                 f.seek(db_pos,0)  
                 dp_bytes = self.dbh.to_bytes()
-                print(dp_bytes)
+                # print(dp_bytes)
                 f.write(dp_bytes)
                 
                 # write storage header 
@@ -321,7 +355,11 @@ class DataStorage:
                 f.seek(0,0)
                 dh_bytes = self.dsheader.to_bytes()
                 f.write(dh_bytes)
-    
+                
+            self.isAvailable = True
+            
+            # end of flush()
+            
     def settimestamp(self, ts=0): 
         if ts==0:
             now = datetime.datetime.now()
