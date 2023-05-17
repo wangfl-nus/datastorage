@@ -1,0 +1,39 @@
+# data storage info 
+{
+  "ver" :
+  "pid" :
+  "noc" :
+  "proto" :
+  "lof": 
+  "blkf" : <>  # block table file 
+  "datf" : <>  # data file   
+}
+ 
+# data block info 
+{
+"nob": <>  # number of data block
+"bt": [    # block table 
+	{
+	  "sp" : <> # start postion in the file
+      "len": <> # length of data block
+      "info" : <> # info 
+	  "chns": [
+		{"sp":<> # start position of the channels
+		 "len":  # length of channel data  
+		 "nof": <> # number of frames  
+		 "du" :
+		 "ts" :
+		}
+		{}  
+	  ]  	  
+	},   
+	{},
+
+]   
+}
+
+# data 
+
+
+
+
