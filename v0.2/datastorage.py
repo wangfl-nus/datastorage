@@ -133,6 +133,10 @@ class DataStorage_Info:
 def make_channel(sp, le, nof, du, ts):
     return {"sp":sp, "len": le, "nof":nof, "du":du, "ts":ts}
 
+def timestamp_add(ts, du):
+    _dt = datetime.datetime.fromtimestamp(ts) + datetime.timedelta(milliseconds=(du/10)) #
+    return time.mktime(_dt.timetuple())
+
 #
 # data block info 
 #
@@ -285,12 +289,30 @@ class DataStorage:
         self.d['data'] = [[],[]]  # two channels
         self.d['cb'] = None # current block 
     
-    # read data, default duration is 5 min
-    def load(self, chn = 0, ts=0, duration=5, oft='txt'):
+    # read data, default du unit 0.1 ms, value is 10 (=1ms)
+    def load(self, chn = 0, ts=0, du=10, oft='txt'):
         ds = DataSet()
         
-        # search in datablock 
+        b_list = [] # temp lcok list
         
-        # for blk in self.d['datablock-info']['blt']:
+        _sts = ts
+        _ets = timestamp_add(ts, du)   
+        
+        _sb = None
+        _lb = None
+        
+        # search in datablock 
+        for blk in self.d['datablock-info'].d['blt']:
+            _ts1 = blk['chns'][chn]['ts']
+            # _ts2 = _ts1 + datetime.timedelta(milliseconds= ( blk['chns'][chn]['du']/10))
+            _ts2 = timestamp_add( _ts1, blk['chns'][chn]['du'])
+            if _sts >=_ts1 :
+                if _sts <= _ts2: 
+                    b_list.append(blk)
+             
+            elif  _ets >= _ts1 :
+                b_list.append(blk)
+                
+        # TODO: load data and convert format 
          
-        return ds
+        return b_list # ds
