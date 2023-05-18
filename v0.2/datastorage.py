@@ -245,11 +245,19 @@ class DataStorage:
         
         for line in lines:
             x = line.strip('\n').split(',') 
-            rs = int(x[0], 16)
-            chn = int(x[1], 16)
-            finfo  = int(x[2], 16)
-            fid    = int(x[3], 16)
-            data   = [int(i,16) for i in x[4:]]
+            
+            try:
+                rs = int(x[0], 16)
+                chn = int(x[1], 16)
+                finfo  = int(x[2], 16)
+                fid    = int(x[3], 16)
+                data   = [int(i,16) for i in x[4:]]
+            except IndexError:
+                print("IndexError: line={}, x={}".format(line, x))
+                continue
+            except ValueError:
+                print("ValueError: line={}, x={}".format(line, x))
+                continue
 
             info = bytearray([rs&0xff]) + bytearray(fid.to_bytes(4, byteorder = 'big')[1:]) 
             data = bytearray([int(i,16) for i in x[4:]]) 
