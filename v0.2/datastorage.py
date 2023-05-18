@@ -77,11 +77,12 @@ class RawData:
         - Used for data handling and analyzing and visulizing  
 '''
 class DataSet:
-    def __init__(self, ds = None): 
+    def __init__(self): 
         self.ds = None
 
     def getDataSet(self):
         return self.ds    
+
     
     
 DS_VERSION = "0.1"
@@ -313,6 +314,26 @@ class DataStorage:
             elif  _ets >= _ts1 :
                 b_list.append(blk)
                 
-        # TODO: load data and convert format 
-         
-        return b_list # ds
+        # load data and convert format 
+        
+        ds = []
+        fn = self.d['datastorage-info'].d['dataf']
+        lof = self.d['datastorage-info'].d['lof']  # length pf frame (per line in raw data)
+        with open(fn, 'rb') as f:
+            
+            for blk in b_list:
+                _sp = blk['sp'] +  blk['chns'][chn]['sp']
+                f.seek(_sp, 0)
+                buf = f.read(blk['chns'][chn]['len'])
+                for i in range(blk['chns'][chn]['nof']):
+                    l  = i*lof
+                    _bytes = buf[l:l+lof]
+                    _ds = []
+                    # parse into ds
+                    _ds.append(_bytes[0])  # rs
+                    _ds.append( int.from_bytes((b'\x18'+_bytes[1:4]), byteorder='big') ) # fid
+                    _d = [i for i in _bytes[4:]]
+                    _ds.append(_d)
+                    ds.append(_ds)       
+                    
+        return ds, b_list

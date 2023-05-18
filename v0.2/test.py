@@ -69,4 +69,33 @@ def test_upload_2(dstorage):
 
     #print( "cb => {}".format(dstorage.d['cb']))
     
+
+def test_load(dstorage):
     
+    #dstorage = DataStorage(filename='dst')
+
+    print("Data Storage <dst> : \n{}\n".format(vars(dstorage)))
+    print("Data Storage <dst> Info: \n{}\n".format(vars(dstorage.d['datastorage-info'])))
+    print("Data Storage <dst> BlockInfo: \n{}\n".format(vars(dstorage.d['datablock-info'])))
+
+
+    # makeup data
+    def timestamp_add(ts, du):
+        _dt = datetime.datetime.fromtimestamp(ts) + datetime.timedelta(milliseconds=(du*1000)) #
+        return time.mktime(_dt.timetuple())
+ 
+    ts = 1684315290.0
+
+    for blk in dstorage.d['datablock-info'].d['blt']:
+        blk['chns'][0]['ts'] = ts
+        ts = timestamp_add(ts, blk['chns'][0]['du'])
+        #ts = blk['chns'][0]['ts']
+        #print("{},  {}".format(ts, datetime.datetime.fromtimestamp(ts)))
+
+    print(vars(dstorage.d['datablock-info']))
+
+    bbb, bl = dstorage.load(chn=0, ts= 1684315446.0, du=2000000, oft='txt')
+    print(bl)
+    print("bbb:\n")
+    print(bbb)
+    print("bbb length: {}".format(len(bbb)))
