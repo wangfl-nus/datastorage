@@ -1,136 +1,4 @@
-''' 
- 
- Generage Data Storage
-
-'''
- 
-# raw data files
-rawfiles = [
-    "data\\icanbus\\00-01.txt",
-    "data\\icanbus\\00-02.txt",
-    "data\\icanbus\\00-03.txt",
-    "data\\icanbus\\00-04.txt",
-    "data\\icanbus\\00-05.txt",
-    "data\\icanbus\\00-06.txt",
-    "data\\icanbus\\00-07.txt",
-    "data\\icanbus\\00-08.txt",
-    "data\\icanbus\\00-09.txt",
-    "data\\icanbus\\00-10.txt",
-    "data\\icanbus\\00-11.txt",
-    "data\\icanbus\\00-12.txt",
-    "data\\icanbus\\00-13.txt",
-    "data\\icanbus\\00-14.txt",
-    "data\\icanbus\\00-15.txt",
-    "data\\icanbus\\00-16.txt",
-    "data\\icanbus\\00-17.txt",
-    "data\\icanbus\\00-18.txt",
-    "data\\icanbus\\00-19.txt",
-    "data\\icanbus\\00-20.txt",
-    "data\\icanbus\\00-21.txt",
-    "data\\icanbus\\00-22.txt",
-    "data\\icanbus\\00-23.txt",
-    "data\\icanbus\\00-24.txt",
-    "data\\icanbus\\00-25.txt",
-    "data\\icanbus\\00-26.txt",
-    "data\\icanbus\\00-27.txt",
-    "data\\icanbus\\00-28.txt",
-    "data\\icanbus\\00-29.txt",
-    "data\\icanbus\\00-30.txt",
-    "data\\icanbus\\00-31.txt",
-    "data\\icanbus\\00-32.txt",
-    "data\\icanbus\\00-33.txt",
-    "data\\icanbus\\00-34.txt",
-    "data\\icanbus\\00-35.txt",
-    "data\\icanbus\\00-36.txt",
-    "data\\icanbus\\00-37.txt",
-    "data\\icanbus\\00-38.txt",
-    "data\\icanbus\\00-39.txt",
-    "data\\icanbus\\00-40.txt",
-    "data\\icanbus\\00-41.txt",
-    "data\\icanbus\\00-42.txt",
-    "data\\icanbus\\00-43.txt",
-    "data\\icanbus\\00-44.txt",
-    "data\\icanbus\\00-45.txt",
-    "data\\icanbus\\00-46.txt",
-    "data\\icanbus\\00-47.txt",
-    "data\\icanbus\\00-48.txt",
-    "data\\icanbus\\00-49.txt",
-    "data\\icanbus\\00-50.txt",
-    "data\\icanbus\\00-51.txt",
-    "data\\icanbus\\00-52.txt",
-    "data\\icanbus\\00-53.txt",
-    "data\\icanbus\\00-54.txt",
-    "data\\icanbus\\00-55.txt",
-    "data\\icanbus\\00-56.txt",
-    "data\\icanbus\\00-57.txt",
-    "data\\icanbus\\00-58.txt",
-    "data\\icanbus\\00-59.txt",
-    "data\\icanbus\\01-00.txt",
-    "data\\icanbus\\01-01.txt",
-    "data\\icanbus\\01-02.txt",
-    "data\\icanbus\\01-03.txt",
-    "data\\icanbus\\01-04.txt",
-    "data\\icanbus\\01-05.txt",
-    "data\\icanbus\\01-06.txt",
-    "data\\icanbus\\01-07.txt",
-    "data\\icanbus\\01-08.txt",
-    "data\\icanbus\\01-09.txt",
-    "data\\icanbus\\01-10.txt",
-    "data\\icanbus\\01-11.txt",
-    "data\\icanbus\\01-12.txt",
-    "data\\icanbus\\01-13.txt",
-    "data\\icanbus\\01-14.txt",
-    "data\\icanbus\\01-15.txt",
-    "data\\icanbus\\01-16.txt",
-    "data\\icanbus\\01-17.txt",
-    "data\\icanbus\\01-18.txt",
-    "data\\icanbus\\01-19.txt",
-    "data\\icanbus\\01-20.txt",
-    "data\\icanbus\\01-21.txt",
-    "data\\icanbus\\01-22.txt",
-    "data\\icanbus\\01-23.txt",
-    "data\\icanbus\\01-24.txt",
-    "data\\icanbus\\01-25.txt",
-    "data\\icanbus\\01-26.txt",
-    "data\\icanbus\\01-27.txt",
-    "data\\icanbus\\01-28.txt",
-    "data\\icanbus\\01-29.txt",
-    "data\\icanbus\\01-30.txt",
-    "data\\icanbus\\01-31.txt",
-    "data\\icanbus\\01-32.txt",
-    "data\\icanbus\\01-33.txt",
-    "data\\icanbus\\01-34.txt",
-    "data\\icanbus\\01-35.txt",
-    "data\\icanbus\\01-36.txt",
-    "data\\icanbus\\01-37.txt",
-    "data\\icanbus\\01-38.txt",
-    "data\\icanbus\\01-39.txt",
-    "data\\icanbus\\01-40.txt",
-    "data\\icanbus\\01-41.txt",
-    "data\\icanbus\\01-42.txt",
-    "data\\icanbus\\01-43.txt",
-    "data\\icanbus\\01-44.txt",
-    "data\\icanbus\\01-45.txt",
-    "data\\icanbus\\01-46.txt",
-    "data\\icanbus\\01-47.txt",
-    "data\\icanbus\\01-48.txt",
-    "data\\icanbus\\01-49.txt",
-    "data\\icanbus\\01-50.txt",
-    "data\\icanbus\\01-51.txt",
-    "data\\icanbus\\01-52.txt",
-    "data\\icanbus\\01-53.txt",
-    "data\\icanbus\\01-54.txt",
-    "data\\icanbus\\01-55.txt",
-    "data\\icanbus\\01-56.txt",
-    "data\\icanbus\\01-57.txt",
-    "data\\icanbus\\01-58.txt",
-    "data\\icanbus\\01-59.txt"
-]
-
-
-# data storage name
-datastorage_name = 'dst'
- 
+from dsd import * 
 from datastorage import *
 
 def timestamp_add(ts, du):
@@ -173,7 +41,7 @@ def print_dsinfo(dstorage):
 # makeup data
 
 
-def fix_timestamp(dstorage)
+def fix_timestamp(dstorage):
 
     blkinfo = dstorage.d['datablock-info']
 
@@ -185,16 +53,95 @@ def fix_timestamp(dstorage)
             blk['chns'][i]['ts'] = _sts[i]
             _sts[i] = timestamp_add( _sts[i],  blk['chns'][i]['du'])
             newst =  blk['chns'][i]['ts']
+            '''
             if i%2 ==0 :
                 print("chn:{}, old-ts:{}({}), new-ts:{}({}), du:{}({}s)".format(i, oldst, datetime.datetime.fromtimestamp(oldst), newst, datetime.datetime.fromtimestamp(newst), blk['chns'][i]['du'], int(blk['chns'][i]['du']/10000)))
-    
+            '''
     blkinfo.save()
+
+
+    
+def check_blockinfo(dstorage):
+    
+    blki = dstorage.d['datablock-info']
+
+    nob=blki.d['nob']
+    blt=blki.d['blt'] 
+    
+    if nob != len(blt):
+        print("nob error nob={}, blt len={}".format(nob, len(blt)))
+        return
+
+    # print(blt[0])
+
+    last_sp = 0
+    last_len = 0
+    #last_chn_sp = [0,0]
+    #last_chn_len = [0,0]
+    last_chn_ts = [0.0,0.0]
+    last_chn_du = [0,0]
+
+    # adress verify 
+    for blk in blt:
+
+        # the sp = last_sp + last_len 
+        if last_len > 0:
+            if blk['sp'] != (last_sp + last_len):
+                print("failed to verify address at {}".format(blk))
+                print("last sp {} and len {}")
+                break
+
+        last_sp = blk['sp']
+        last_len = blk['len']
+
+        chn0 = blk['chns'][0]
+        chn1 = blk['chns'][1] 
+
+        # chns address
+        if not (chn0['sp'] == 0 and chn1['sp'] == chn0['len'] and blk['len'] == (chn0['len'] + chn1['len']) ):
+            print("failed to verify chns address at blk {}".format(blk)) 
+            break
+
+
+        # timestamp add
+        def timestamp_add(ts, du):
+            _dt = datetime.datetime.fromtimestamp(ts) + datetime.timedelta(milliseconds=(du/10)) #
+            return time.mktime(_dt.timetuple())
+
+        # chns ts and du, ts = last_ts + last_du 
+        if last_chn_du[0] > 0 :
+            _ts = timestamp_add(last_chn_ts[0], last_chn_du[0])
+            if chn0['ts'] < _ts:
+                print("failed to verify chn0 ts at blk {}".format(blk)) 
+                break
+
+        #lts = datetime.datetime.fromtimestamp(last_chn_ts[0])
+        #cts = datetime.datetime.fromtimestamp(chn0['ts'])
+        #print("last chn0 ts: {}, du: {}s, cur ts: {}".format(lts, int(last_chn_du[0]/10000), cts))
+
+        last_chn_ts[0] = chn0['ts']
+        last_chn_du[0] = chn0['du']
+
+        if last_chn_du[1] >0 :
+            _ts = timestamp_add(last_chn_ts[1], last_chn_du[1])
+            if chn1['ts'] < _ts:
+                print("failed to verify chn0 ts at blk {}".format(blk)) 
+                break
+
+        last_chn_ts[1] = chn1['ts']
+        last_chn_du[1] = chn1['du']
+
+    print("verifying done")    
  
- if __name__ == "__main__":
+    
+    
+if __name__ == "__main__":
     
     dstorage=create_datastorage(dsname=datastorage_name, rawfiles=rawfiles)
 
     fix_timestamp(dstorage=dstorage)
+    
+    check_blockinfo(dstorage=dstorage)
 
     print_dsinfo(dstorage=dstorage)
     
