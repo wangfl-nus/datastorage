@@ -1,18 +1,19 @@
-from dsd import * 
+import sys
 from datastorage import *
 
 def timestamp_add(ts, du):
     _dt = datetime.datetime.fromtimestamp(ts) + datetime.timedelta(milliseconds=(du/10)) #
     return time.mktime(_dt.timetuple())
- 
+     
 def create_datastorage(dsname="dst", rawfiles=[]):
     
     # generate datastorage
     dstorage = DataStorage(filename=dsname)
      
     # set profile 
-    dstorage.setprofile(profile={'pid':0xBABA})
-    dstorage.setprofile(profile={'proto':0x0000}) 
+    #dstorage.setprofile(profile={'pid':0xBABA})
+    #dstorage.setprofile(profile={'proto':0x0000}) 
+    dstorage.setprofile(profile=datastorage_profile)
     dstorage.lockprofile()
           
     # upload data from raw files
@@ -76,8 +77,6 @@ def check_blockinfo(dstorage):
 
     last_sp = 0
     last_len = 0
-    #last_chn_sp = [0,0]
-    #last_chn_len = [0,0]
     last_chn_ts = [0.0,0.0]
     last_chn_du = [0,0]
 
@@ -102,13 +101,7 @@ def check_blockinfo(dstorage):
             print("failed to verify chns address at blk {}".format(blk)) 
             break
 
-
-        # timestamp add
-        def timestamp_add(ts, du):
-            _dt = datetime.datetime.fromtimestamp(ts) + datetime.timedelta(milliseconds=(du/10)) #
-            return time.mktime(_dt.timetuple())
-
-        # chns ts and du, ts = last_ts + last_du 
+         # chns ts and du, ts >= last_ts + last_du 
         if last_chn_du[0] > 0 :
             _ts = timestamp_add(last_chn_ts[0], last_chn_du[0])
             if chn0['ts'] < _ts:
@@ -137,6 +130,16 @@ def check_blockinfo(dstorage):
     
 if __name__ == "__main__":
     
+    arg = sys.argv[1:]
+        
+    if arg[0] == "--profile_0":
+        from edsd import * 
+        print("Generage data storage for profile 0")
+     
+    if arg[0] == "--profile_1":    
+        from idsd import * 
+        print("Generage data storage for profile 1")
+     
     dstorage=create_datastorage(dsname=datastorage_name, rawfiles=rawfiles)
 
     fix_timestamp(dstorage=dstorage)
